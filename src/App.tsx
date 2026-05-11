@@ -21,7 +21,7 @@ import {
 } from "recharts";
 
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxeKcmncAxs6tIAtqU0d5k-1h-VvG35f5fJhqI9foXgpaIvNeB5xKGpml0fo6cf3T_FKA/exec";
+  "https://script.google.com/macros/s/AKfycbyA5uYpgn-03X-349cltER1xyKqGD68i2j2y2GnwAQH2PE3aGTsq7_ngOmuz5NkGRjBUA/exec";
 
 const DEFAULT_TARGETS = {
   totalWealth: 5000000,
@@ -105,14 +105,12 @@ const fmtB = (n: any) =>
 
 const num = (v: any) => parseFloat(String(v).replace(/,/g, "")) || 0;
 
-const targetPct = (v: any) => {
-  const n = num(v);
-  if (!n) return 0;
-  return n <= 1 ? n * 100 : n;
-};
+// Target % uses direct percentage input.
+// Example: user types 10 = 10%, not 0.10 = 10%.
+const targetPct = (v: any) => num(v);
 
 const fmtPct = (v: any, d: number = 0) => {
-  const pct = targetPct(v);
+  const pct = num(v);
   return pct > 0 ? `${fmt(pct, d)}%` : "—";
 };
 
@@ -793,7 +791,7 @@ const [deletedPortfolioSymbols, setDeletedPortfolioSymbols] = useState<string[]>
             osType: normalizeHoldingType(h.type),
             units: h.units === "" ? "" : Number(h.units),
             avgCost: h.avgCost === "" ? "" : Number(h.avgCost),
-            targetWeight: h.targetWeight === "" ? "" : targetPct(h.targetWeight),
+            targetWeight: h.targetWeight === "" ? "" : num(h.targetWeight),
             note: h.note || "",
           })),
       };
@@ -3269,11 +3267,7 @@ const [deletedPortfolioSymbols, setDeletedPortfolioSymbols] = useState<string[]>
                                 }}
                               >
                                 <EInput
-                                  val={
-                                    h.targetWeight === "" || h.targetWeight === null || h.targetWeight === undefined
-                                      ? ""
-                                      : fmt(targetPct(h.targetWeight), 2)
-                                  }
+                                  val={h.targetWeight ?? ""}
                                   onChange={(v) => updateHolding(i, "targetWeight", v)}
                                   placeholder="0.00"
                                   width="70px"
