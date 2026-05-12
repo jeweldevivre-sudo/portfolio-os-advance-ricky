@@ -511,6 +511,28 @@ const [deletedPortfolioSymbols, setDeletedPortfolioSymbols] = useState<string[]>
   const growGap = growPct - phaseData.growthPct;
   const needRebal = Math.abs(divGap) > 5 || Math.abs(growGap) > 5;
 
+  const allocationMessage = useMemo(() => {
+    if (!needRebal) return "Portfolio aligned";
+
+    if (growGap > 5) {
+      return `Growth overweight +${fmt(Math.abs(growGap))}%`;
+    }
+
+    if (divGap > 5) {
+      return `Dividend overweight +${fmt(Math.abs(divGap))}%`;
+    }
+
+    if (divGap < -5) {
+      return `Dividend lowerweight -${fmt(Math.abs(divGap))}%`;
+    }
+
+    if (growGap < -5) {
+      return `Growth lowerweight -${fmt(Math.abs(growGap))}%`;
+    }
+
+    return "Review allocation";
+  }, [needRebal, growGap, divGap]);
+
   const totalBuyCash = num(
     summary.totalBuyNeed ?? summary.total_buy_need ?? summary.buyNeed
   );
@@ -1432,8 +1454,8 @@ const [deletedPortfolioSymbols, setDeletedPortfolioSymbols] = useState<string[]>
                   </span>
                 </div>
                 <span style={{ color: "#7d8ea5", fontSize: 12 }}>
-                  Dividend overweight +{fmt(Math.abs(divGap))}% · Target D:
-                  {phaseData.dividendPct}% / G:{phaseData.growthPct}%
+                  {allocationMessage} · Target D:{phaseData.dividendPct}% / G:
+                  {phaseData.growthPct}%
                 </span>
               </div>
             ) : (
